@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Método de Gauss</title>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      margin: 20px; 
+      background-color: #f9f9f9; 
+      color: #333;
+    }
+
+    h2 {
+      color: #e67e22; /* Laranja */
+      text-align: center;
+    }
+
+    label {
+      font-weight: bold;
+      margin-right: 10px;
+    }
+
+    input[type=number] {
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 80px;
+    }
+
+    button {
+      background-color: #e67e22; /* Laranja */
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      margin: 10px 0;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #d35400; /* Laranja mais escuro */
+    }
+
+    table { 
+      border-collapse: collapse; 
+      margin: 15px auto; 
+      background: white;
+      box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+    }
+
+    td, th { 
+      border: 1px solid #ccc; 
+      padding: 6px; 
+      text-align: center; 
+    }
+
+    input[type=number] {
+      width: 70px;
+    }
+
+    .matriz { 
+      margin-bottom: 20px; 
+      text-align: center;
+    }
+
+    .etapa { 
+      margin: 15px auto; 
+      padding: 10px; 
+      border-left: 5px solid #e67e22; 
+      border-radius: 6px; 
+      background: #fff3e6; 
+      max-width: 800px;
+    }
+
+    .solucao { 
+      font-weight: bold; 
+      color: #27ae60; 
+      margin-top: 20px; 
+      font-size: 1.1em;
+    }
+
+    .info {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 0.95em;
+    }
+  </style>
+</head>
+<body>
+  <h2>Método de Gauss</h2>
+
+  <div style="text-align:center;">
+    <label>Quantidade de equações (até 1000): </label>
+    <input type="number" id="n" min="2" max="1000" value="3">
+    <button onclick="gerarMatriz()">Gerar Matriz</button>
+  </div>
+
+  <div id="entrada" style="text-align:center; margin-top:15px;"></div>
+  <div style="text-align:center;">
+    <button id="resolver" style="display:none;" onclick="resolverGauss()">Resolver</button>
+  </div>
+
+  <div id="saida"></div>
+
+  <script>
+    function gerarMatriz() {
+      let n = parseInt(document.getElementById("n").value);
+      let div = document.getElementById("entrada");
+      div.innerHTML = "";
+
+      let tabela = "<table>";
+      for (let i = 0; i < n; i++) {
+        tabela += "<tr>";
+        for (let j = 0; j < n + 1; j++) {
+          tabela += `<td><input type='number' id='a_${i}_${j}' step='any'></td>`;
+        }
+        tabela += "</tr>";
+      }
+      tabela += "</table>";
+      div.innerHTML = tabela;
+      document.getElementById("resolver").style.display = "inline-block";
+    }
+
+    function copiarMatriz(n) {
+      let A = [];
+      for (let i = 0; i < n; i++) {
+        A[i] = [];
+        for (let j = 0; j < n + 1; j++) {
+          A[i][j] = parseFloat(document.getElementById(`a_${i}_${j}`).value) || 0;
+        }
+      }
+      return A;
+    }
+
+    function mostrarMatriz(A, titulo) {
+      let html = "<div class='matriz'><b>" + titulo + "</b><br><table>";
+      for (let i = 0; i < A.length; i++) {
+        html += "<tr>";
+        for (let j = 0; j < A[i].length; j++) {
+          html += "<td>" + A[i][j].toFixed(3) + "</td>";
+        }
+        html += "</tr>";
+      }
+      html += "</table></div>";
+      return html;
+    }
+
+    function resolverGauss() {
+      let n = parseInt(document.getElementById("n").value);
+      let A = copiarMatriz(n);
+      let saida = document.getElementById("saida");
+      saida.innerHTML = "";
+
+      saida.innerHTML += mostrarMatriz(A, "Matriz inicial");
+
+      let multiplicadores = [];
+      
+      // Eliminação
+      for (let k = 0; k < n - 1; k++) {
+        for (let i = k + 1; i < n; i++) {
+          let m = A[i][k] / A[k][k];
+          multiplicadores.push(m);
+          for (let j = k; j <= n; j++) {
+            A[i][j] = A[i][j] - m * A[k][j];
+          }
+        }
+        saida.innerHTML += "<div class='etapa'>" + 
+                           mostrarMatriz(A, "Etapa " + (k+1)) +
+                           "<b>Multiplicadores usados nesta etapa:</b> " + multiplicadores.slice(- (n-(k+1))).map(x => x.toFixed(3)).join(", ") +
+                           "</div>";
+      }
+
+      // Substituição regressiva
+      let x = new Array(n).fill(0);
+      for (let i = n - 1; i >= 0; i--) {
+        let soma = 0;
+        for (let j = i + 1; j < n; j++) {
+          soma += A[i][j] * x[j];
+        }
+        x[i] = (A[i][n] - soma) / A[i][i];
+      }
+
+      saida.innerHTML += "<div class='info'><b>Total de multiplicadores: </b>" + multiplicadores.length + "</div>";
+      saida.innerHTML += "<div class='solucao'>Solução: " + x.map((val, idx) => "x" + (idx+1) + " = " + val.toFixed(5)).join(", ") + "</div>";
+    }
+  </script>
+</body>
+</html>
