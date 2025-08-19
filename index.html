@@ -2,110 +2,106 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Método de Gauss</title>
+  <title>Métodos Numéricos</title>
   <style>
     body { 
       font-family: Arial, sans-serif; 
       margin: 20px; 
       background-color: #f9f9f9; 
       color: #333;
-    }
-
-    h2 {
-      color: #e67e22; /* Laranja */
-      text-align: center;
-    }
-
-    label {
-      font-weight: bold;
-      margin-right: 10px;
-    }
-
-    input[type=number] {
-      padding: 5px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      width: 80px;
-    }
-
-    button {
-      background-color: #e67e22; /* Laranja */
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 8px 16px;
-      margin: 10px 0;
-      cursor: pointer;
-      font-weight: bold;
       transition: 0.3s;
     }
-
-    button:hover {
-      background-color: #d35400; /* Laranja mais escuro */
+    h2 { text-align: center; color: #e67e22; }
+    h3 { color: #e67e22; text-align: center; }
+    button {
+      background-color: #e67e22; color: white;
+      border: none; border-radius: 8px;
+      padding: 8px 16px; margin: 5px; cursor: pointer;
+      font-weight: bold; transition: 0.3s;
     }
-
+    button:hover { background-color: #d35400; }
+    input {
+      padding: 6px; margin: 4px; border: 1px solid #ccc;
+      border-radius: 6px;
+    }
     table { 
       border-collapse: collapse; 
-      margin: 15px auto; 
+      margin: 10px auto; 
       background: white;
       box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
     }
-
-    td, th { 
-      border: 1px solid #ccc; 
-      padding: 6px; 
-      text-align: center; 
-    }
-
-    input[type=number] {
-      width: 70px;
-    }
-
-    .matriz { 
-      margin-bottom: 20px; 
-      text-align: center;
-    }
-
+    td, th { border: 1px solid #ccc; padding: 6px; text-align: center; }
+    .section { display: none; margin-top: 20px; }
+    .active { display: block; }
     .etapa { 
-      margin: 15px auto; 
-      padding: 10px; 
+      margin: 12px auto; padding: 10px; 
       border-left: 5px solid #e67e22; 
       border-radius: 6px; 
-      background: #fff3e6; 
-      max-width: 800px;
+      background: #fff3e6; max-width: 750px;
     }
-
     .solucao { 
-      font-weight: bold; 
-      color: #27ae60; 
-      margin-top: 20px; 
-      font-size: 1.1em;
+      font-weight: bold; color: #27ae60;
+      margin-top: 20px; font-size: 1.1em; text-align: center;
     }
-
-    .info {
-      text-align: center;
-      margin-top: 15px;
-      font-size: 0.95em;
-    }
+    /* Dark Mode */
+    .dark { background-color: #1e1e1e; color: #eee; }
+    .dark table { background: #2c2c2c; }
+    .dark td, .dark th { border: 1px solid #555; color: #eee; }
+    .dark .etapa { background: #333; border-left: 5px solid #f39c12; }
+    .dark .solucao { color: #2ecc71; }
   </style>
 </head>
 <body>
-  <h2>Método de Gauss</h2>
-
+  <h2>Métodos Numéricos</h2>
   <div style="text-align:center;">
-    <label>Quantidade de equações (até 1000): </label>
-    <input type="number" id="n" min="2" max="1000" value="3">
-    <button onclick="gerarMatriz()">Gerar Matriz</button>
+    <button onclick="showSection('gauss')">Método de Gauss</button>
+    <button onclick="showSection('bisseccao')">Método da Bissecção</button>
+    <button onclick="toggleDarkMode()">🌙/☀️</button>
   </div>
 
-  <div id="entrada" style="text-align:center; margin-top:15px;"></div>
-  <div style="text-align:center;">
-    <button id="resolver" style="display:none;" onclick="resolverGauss()">Resolver</button>
+  <!-- Seção Gauss -->
+  <div id="gauss" class="section">
+    <h3>Método de Gauss</h3>
+    <div style="text-align:center;">
+      <label>Quantidade de equações (até 1000): </label>
+      <input type="number" id="n" min="2" max="1000" value="3">
+      <button onclick="gerarMatriz()">Gerar Matriz</button>
+    </div>
+    <div id="entrada" style="text-align:center; margin-top:15px;"></div>
+    <div style="text-align:center;">
+      <button id="resolver" style="display:none;" onclick="resolverGauss()">Resolver</button>
+    </div>
+    <div id="saida"></div>
   </div>
 
-  <div id="saida"></div>
+  <!-- Seção Bissecção -->
+  <div id="bisseccao" class="section">
+    <h3>Método da Bissecção</h3>
+    <div style="text-align:center;">
+      <label>f(x): </label>
+      <input type="text" id="funcao" placeholder="Ex: x^3 - x - 2">
+      <label>Erro (ε): </label>
+      <input type="number" id="erro" step="any" value="0.0001">
+      <button onclick="resolverBisseccao()">Resolver</button>
+    </div>
+    <div id="saidaBisseccao"></div>
+  </div>
 
   <script>
+    // Alternar seções
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      document.getElementById("saida").innerHTML = "";
+      document.getElementById("saidaBisseccao").innerHTML = "";
+    }
+
+    // Dark Mode
+    function toggleDarkMode() {
+      document.body.classList.toggle("dark");
+    }
+
+    // ----------------- MÉTODO DE GAUSS -----------------
     function gerarMatriz() {
       let n = parseInt(document.getElementById("n").value);
       let div = document.getElementById("entrada");
@@ -158,7 +154,6 @@
 
       let multiplicadores = [];
       
-      // Eliminação
       for (let k = 0; k < n - 1; k++) {
         for (let i = k + 1; i < n; i++) {
           let m = A[i][k] / A[k][k];
@@ -169,11 +164,10 @@
         }
         saida.innerHTML += "<div class='etapa'>" + 
                            mostrarMatriz(A, "Etapa " + (k+1)) +
-                           "<b>Multiplicadores usados nesta etapa:</b> " + multiplicadores.slice(- (n-(k+1))).map(x => x.toFixed(3)).join(", ") +
+                           "<b>Multiplicadores usados:</b> " + multiplicadores.slice(- (n-(k+1))).map(x => x.toFixed(3)).join(", ") +
                            "</div>";
       }
 
-      // Substituição regressiva
       let x = new Array(n).fill(0);
       for (let i = n - 1; i >= 0; i--) {
         let soma = 0;
@@ -183,8 +177,52 @@
         x[i] = (A[i][n] - soma) / A[i][i];
       }
 
-      saida.innerHTML += "<div class='info'><b>Total de multiplicadores: </b>" + multiplicadores.length + "</div>";
       saida.innerHTML += "<div class='solucao'>Solução: " + x.map((val, idx) => "x" + (idx+1) + " = " + val.toFixed(5)).join(", ") + "</div>";
+    }
+
+    // ----------------- MÉTODO DA BISSECÇÃO -----------------
+    function resolverBisseccao() {
+      let funcao = document.getElementById("funcao").value;
+      let erro = parseFloat(document.getElementById("erro").value);
+      let saida = document.getElementById("saidaBisseccao");
+      saida.innerHTML = "";
+
+      function f(x) {
+        return eval(funcao.replace(/x/g, `(${x})`));
+      }
+
+      // Procurar intervalo automaticamente
+      let a = null, b = null;
+      for (let i = -100; i < 100; i++) {
+        if (f(i) * f(i+1) < 0) {
+          a = i;
+          b = i+1;
+          break;
+        }
+      }
+
+      if (a === null) {
+        saida.innerHTML = "<div class='solucao' style='color:red;'>Não foi encontrado intervalo com troca de sinal no range [-100,100].</div>";
+        return;
+      }
+
+      saida.innerHTML += `<div class='etapa'><b>Intervalo inicial encontrado:</b> [${a}, ${b}]</div>`;
+
+      let iter = 0;
+      let meio, fmeio;
+      while ((b - a) / 2 > erro) {
+        iter++;
+        meio = (a + b) / 2;
+        fmeio = f(meio);
+
+        saida.innerHTML += `<div class='etapa'><b>Iteração ${iter}:</b> a=${a.toFixed(5)}, b=${b.toFixed(5)}, x=${meio.toFixed(5)}, f(x)=${fmeio.toFixed(5)}</div>`;
+
+        if (fmeio === 0) break;
+        if (f(a) * fmeio < 0) b = meio;
+        else a = meio;
+      }
+
+      saida.innerHTML += `<div class='solucao'>Raiz aproximada: x = ${meio.toFixed(6)} após ${iter} iterações</div>`;
     }
   </script>
 </body>
