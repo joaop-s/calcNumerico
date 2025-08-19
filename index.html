@@ -154,6 +154,7 @@
 
       let multiplicadores = [];
       
+      // Eliminação
       for (let k = 0; k < n - 1; k++) {
         for (let i = k + 1; i < n; i++) {
           let m = A[i][k] / A[k][k];
@@ -164,10 +165,11 @@
         }
         saida.innerHTML += "<div class='etapa'>" + 
                            mostrarMatriz(A, "Etapa " + (k+1)) +
-                           "<b>Multiplicadores usados:</b> " + multiplicadores.slice(- (n-(k+1))).map(x => x.toFixed(3)).join(", ") +
+                           "<b>Multiplicadores usados nesta etapa:</b> " + multiplicadores.slice(- (n-(k+1))).map(x => x.toFixed(3)).join(", ") +
                            "</div>";
       }
 
+      // Substituição regressiva
       let x = new Array(n).fill(0);
       for (let i = n - 1; i >= 0; i--) {
         let soma = 0;
@@ -177,6 +179,7 @@
         x[i] = (A[i][n] - soma) / A[i][i];
       }
 
+      saida.innerHTML += "<div class='info'><b>Total de multiplicadores: </b>" + multiplicadores.length + "</div>";
       saida.innerHTML += "<div class='solucao'>Solução: " + x.map((val, idx) => "x" + (idx+1) + " = " + val.toFixed(5)).join(", ") + "</div>";
     }
 
